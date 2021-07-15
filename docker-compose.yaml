@@ -1,0 +1,40 @@
+version: "3"
+
+services:
+  app:
+    container_name: go-rest-api
+    build: .
+    ports:
+      - "3000:3000"
+    volumes:
+      - .:/go/src/
+
+  db:
+    image: postgres:9.4
+    restart: always
+    tty: true
+    volumes:
+      - db:/var/lib/postgresql/data
+    environment:
+      - POSTGRES_PASSWORD=root
+      - POSTGRES_DB=gobook
+    ports:
+      - "5432:5432"
+
+  pgadmin:
+    image: dpage/pgadmin4
+    tty: true
+    environment:
+      - PGADMIN_DEFAULT_EMAIL=admin@user.com
+      - PGADMIN_DEFAULT_PASSWORD=123456
+    ports:
+      - "9000:80"
+    volumes:
+      - "pgadmin:/var/lib/pgadmin"
+
+    depends_on:
+      - db
+
+volumes:
+  pgadmin:
+  db:
