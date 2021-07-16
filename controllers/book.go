@@ -1,20 +1,20 @@
 package controllers
 
 import (
+	"github.com/bmvinicius/go-rest-api/infra/repositories"
 	"github.com/bmvinicius/go-rest-api/models"
 	"github.com/gin-gonic/gin"
-	"gorm.io/gorm"
 	"net/http"
 	"strconv"
 )
 
 type BookController struct {
-	db *gorm.DB // TODO: remove db and use service to read/write
+	br *repositories.BookRepository
 	// TODO: add Service
 }
 
-func NewBookController(db *gorm.DB) *BookController {
-	return &BookController{db}
+func NewBookController(br *repositories.BookRepository) *BookController {
+	return &BookController{br}
 }
 
 func (b *BookController) GetBook(c *gin.Context) {
@@ -27,8 +27,8 @@ func (b *BookController) GetBook(c *gin.Context) {
 		return
 	}
 
-	var book models.Book
-	err = b.db.First(&book, id).Error
+	var book *models.Book
+	book, err = b.br.GetById(id)
 
 	if err != nil {
 		c.JSON(http.StatusNotFound, gin.H{
@@ -52,7 +52,7 @@ func (b *BookController) CreateBook(c *gin.Context) {
 		return
 	}
 
-	err = b.db.Create(&book).Error
+	_, err = b.br.Create(&book)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
 			"message": "Cannot create Book: " + err.Error(),
@@ -66,8 +66,8 @@ func (b *BookController) CreateBook(c *gin.Context) {
 }
 
 func (b *BookController) GetBooks(c *gin.Context) {
-	var books []*models.Book
-	err := b.db.Find(&books).Error
+	books, err := b.br.GetAll()
+
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
 			"message": "error: " + err.Error(),
