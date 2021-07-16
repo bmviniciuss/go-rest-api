@@ -5,6 +5,20 @@ import (
 	"time"
 )
 
+type BookRepositoryReader interface {
+	GetById(ID uint) (*Book, error)
+	GetAll() ([]*Book, error)
+}
+
+type BookRepositoryWriter interface {
+	Create(book *Book) (*Book, error)
+}
+
+type BookRepository interface {
+	BookRepositoryReader
+	BookRepositoryWriter
+}
+
 type Book struct {
 	ID          uint           `json:"id" gorm:"primaryKey"`
 	Title       string         `json:"title"`
