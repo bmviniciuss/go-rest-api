@@ -1,6 +1,7 @@
 package repositories
 
 import (
+	"errors"
 	"github.com/bmvinicius/go-rest-api/models"
 	"gorm.io/gorm"
 )
@@ -17,8 +18,13 @@ func (r *BookRepository) GetById(id int) (*models.Book, error) {
 	var book models.Book
 	err := r.db.First(&book, "id = ?", id).Error
 	if err != nil {
+		// No book was found
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return &models.Book{}, models.ErrProductNotFound
+		}
 		return &models.Book{}, err
 	}
+
 	return &book, nil
 }
 
