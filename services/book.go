@@ -20,3 +20,11 @@ func (s *BookService) GetBookById(id int) (*models.Book, error) {
 	}
 	return book, nil
 }
+
+func (s *BookService) GetBooks() ([]*models.Book, error) {
+	books, err := s.bookRepo.GetAll()
+	if err != nil {
+		return nil, err
+	}
+	return books, nil
+}

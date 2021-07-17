@@ -46,6 +46,15 @@ func (b *BookHandler) getBook(c *gin.Context) {
 	http_helpers.OkResponse(c, book)
 }
 
+func (b *BookHandler) getBooks(c *gin.Context) {
+	books, err := b.s.GetBooks()
+	if err != nil {
+		http_helpers.ServerErrorResponse(c, err.Error())
+		return
+	}
+	http_helpers.OkResponse(c, books)
+}
+
 func (b *BookHandler) createBook(c *gin.Context) {
 	var book models.Book
 	err := c.ShouldBindJSON(&book)
@@ -66,20 +75,6 @@ func (b *BookHandler) createBook(c *gin.Context) {
 
 	c.JSON(http.StatusCreated, gin.H{
 		"data": book,
-	})
-}
-
-func (b *BookHandler) getBooks(c *gin.Context) {
-	books, err := b.br.GetAll()
-
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{
-			"message": "error: " + err.Error(),
-		})
-		return
-	}
-	c.JSON(http.StatusCreated, gin.H{
-		"data": books,
 	})
 }
 
