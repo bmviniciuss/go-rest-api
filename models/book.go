@@ -1,9 +1,12 @@
 package models
 
 import (
+	"errors"
 	"gorm.io/gorm"
 	"time"
 )
+
+var ErrProductNotFound = errors.New("product not found")
 
 type BookRepositoryReader interface {
 	GetById(ID uint) (*Book, error)
