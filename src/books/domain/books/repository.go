@@ -10,4 +10,4 @@ type Repository interface {
 	Create(book *Book) (*Book, error)
 }
 
-var ErrBookNotFound = errors.New("books not found")
+var ErrBookNotFound = errors.New("book not found")
