@@ -1,6 +1,9 @@
 package handlers
 
 import (
+	"errors"
+	http_helpers "github.com/bmvinicius/go-rest-api/infra/http"
+	"github.com/bmvinicius/go-rest-api/services"
 	"net/http"
 	"strconv"
 
@@ -12,37 +15,35 @@ import (
 const routerPath = "books"
 
 type BookHandler struct {
-	br *repositories.BookRepository
-	// TODO: add Service
+	br *repositories.BookRepository // TODO: remove repository
+	s  *services.BookService
 }
 
-func NewBookHandler(br *repositories.BookRepository) *BookHandler {
-	return &BookHandler{br}
+func NewBookHandler(br *repositories.BookRepository, s *services.BookService) *BookHandler {
+	return &BookHandler{br, s}
 }
 
 func (b *BookHandler) getBook(c *gin.Context) {
 	strId := c.Param("id")
 	id, err := strconv.Atoi(strId)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{
-			"message": "Id must be a integer",
-		})
+		http_helpers.BadRequestErrorResponse(c, "Id must be a integer")
 		return
 	}
 
 	var book *models.Book
-	book, err = b.br.GetById(id)
+	book, err = b.s.GetBookById(id)
 
 	if err != nil {
-		c.JSON(http.StatusNotFound, gin.H{
-			"message": "Book not found: " + err.Error(),
-		})
+		if errors.Is(err, models.ErrProductNotFound) {
+			http_helpers.NotFoundErrorResponse(c, err.Error())
+			return
+		}
+		http_helpers.ServerErrorResponse(c, err.Error())
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{
-		"data": book,
-	})
+	http_helpers.OkResponse(c, book)
 }
 
 func (b *BookHandler) createBook(c *gin.Context) {
