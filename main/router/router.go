@@ -14,5 +14,5 @@ func ConfigRoutes(router *gin.Engine, db *gorm.DB) {
 	booksRepository := repositories.NewBookRepository(db)
 	bookService := services.NewBookService(booksRepository)
 
-	handlers.NewBookHandler(booksRepository, bookService).ApplyRoutes(baseRouter)
+	handlers.NewBookHandler(bookService).ApplyRoutes(baseRouter)
 }

@@ -32,3 +32,7 @@ func NotFoundErrorResponse(c *gin.Context, msg string) {
 func OkResponse(c *gin.Context, data interface{}) {
 	successResponse(c, http.StatusOK, data)
 }
+
+func CreatedResponse(c *gin.Context, data interface{}) {
+	successResponse(c, http.StatusCreated, data)
+}

@@ -28,3 +28,12 @@ func (s *BookService) GetBooks() ([]*models.Book, error) {
 	}
 	return books, nil
 }
+
+func (s *BookService) AddBook(book *models.Book) (*models.Book, error) {
+	// TODO: Check if book already exists
+	_, err := s.bookRepo.Create(book)
+	if err != nil {
+		return &models.Book{}, err
+	}
+	return book, nil
+}
