@@ -2,7 +2,7 @@ package main
 
 import (
 	"github.com/bmvinicius/go-rest-api/infra/database"
-	"github.com/bmvinicius/go-rest-api/server"
+	"github.com/bmvinicius/go-rest-api/main/server"
 )
 
 func main() {

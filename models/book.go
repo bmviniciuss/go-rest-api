@@ -1,9 +1,12 @@
 package models
 
 import (
+	"errors"
 	"gorm.io/gorm"
 	"time"
 )
+
+var ErrProductNotFound = errors.New("product not found")
 
 type BookRepositoryReader interface {
 	GetById(ID uint) (*Book, error)
@@ -30,5 +33,5 @@ type Book struct {
 	ImageURL    string         `json:"imageURL"`
 	CreatedAt   time.Time      `json:"createdAt"`
 	UpdatedAt   time.Time      `json:"updatedAt"`
-	DeletedAt   gorm.DeletedAt `json:"deletedAt" gorm:"index"`
+	DeletedAt   gorm.DeletedAt `json:"-" gorm:"index"`
 }

@@ -1,10 +1,11 @@
 package handlers
 
 import (
-	"net/http"
+	"errors"
+	httpHelpers "github.com/bmvinicius/go-rest-api/infra/http"
+	"github.com/bmvinicius/go-rest-api/services"
 	"strconv"
 
-	"github.com/bmvinicius/go-rest-api/infra/repositories"
 	"github.com/bmvinicius/go-rest-api/models"
 	"github.com/gin-gonic/gin"
 )
@@ -12,74 +13,58 @@ import (
 const routerPath = "books"
 
 type BookHandler struct {
-	br *repositories.BookRepository
-	// TODO: add Service
+	s *services.BookService
 }
 
-func NewBookHandler(br *repositories.BookRepository) *BookHandler {
-	return &BookHandler{br}
+func NewBookHandler(s *services.BookService) *BookHandler {
+	return &BookHandler{s}
 }
 
 func (b *BookHandler) getBook(c *gin.Context) {
 	strId := c.Param("id")
 	id, err := strconv.Atoi(strId)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{
-			"message": "Id must be a integer",
-		})
+		httpHelpers.BadRequestErrorResponse(c, "Id must be a integer")
 		return
 	}
 
 	var book *models.Book
-	book, err = b.br.GetById(id)
+	book, err = b.s.GetBookById(id)
 
 	if err != nil {
-		c.JSON(http.StatusNotFound, gin.H{
-			"message": "Book not found: " + err.Error(),
-		})
+		if errors.Is(err, models.ErrProductNotFound) {
+			httpHelpers.NotFoundErrorResponse(c, err.Error())
+			return
+		}
+		httpHelpers.ServerErrorResponse(c, err.Error())
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{
-		"data": book,
-	})
+	httpHelpers.OkResponse(c, book)
+}
+
+func (b *BookHandler) getBooks(c *gin.Context) {
+	books, err := b.s.GetBooks()
+	if err != nil {
+		httpHelpers.ServerErrorResponse(c, err.Error())
+		return
+	}
+	httpHelpers.OkResponse(c, books)
 }
 
 func (b *BookHandler) createBook(c *gin.Context) {
 	var book models.Book
 	err := c.ShouldBindJSON(&book)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{
-			"message": "Cannot bind JSON: " + err.Error(),
-		})
+		httpHelpers.BadRequestErrorResponse(c, "Cannot bind JSON: "+err.Error())
 		return
 	}
-
-	_, err = b.br.Create(&book)
+	_, err = b.s.AddBook(&book)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{
-			"message": "Cannot create Book: " + err.Error(),
-		})
+		httpHelpers.ServerErrorResponse(c, err.Error())
 		return
 	}
-
-	c.JSON(http.StatusCreated, gin.H{
-		"data": book,
-	})
-}
-
-func (b *BookHandler) getBooks(c *gin.Context) {
-	books, err := b.br.GetAll()
-
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{
-			"message": "error: " + err.Error(),
-		})
-		return
-	}
-	c.JSON(http.StatusCreated, gin.H{
-		"data": books,
-	})
+	httpHelpers.CreatedResponse(c, book)
 }
 
 func (b *BookHandler) ApplyRoutes(rg *gin.RouterGroup) {
