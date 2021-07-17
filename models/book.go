@@ -19,6 +19,8 @@ type BookRepository interface {
 	BookRepositoryWriter
 }
 
+// TODO: Separate gorm model from domain model
+
 type Book struct {
 	ID          uint           `json:"id" gorm:"primaryKey"`
 	Title       string         `json:"title"`

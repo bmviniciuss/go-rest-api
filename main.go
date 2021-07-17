@@ -8,6 +8,7 @@ import (
 func main() {
 	db := database.ConnectToDB()
 	database.RunMigrations(db)
+	// TODO: Read from env
 	s := server.NewServer("3000", db)
 	s.Run()
 }

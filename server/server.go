@@ -1,10 +1,11 @@
 package server
 
 import (
-	"github.com/bmvinicius/go-rest-api/routes"
+	"github.com/bmvinicius/go-rest-api/main/router"
+	"log"
+
 	"github.com/gin-gonic/gin"
 	"gorm.io/gorm"
-	"log"
 )
 
 type Server struct {
@@ -22,6 +23,6 @@ func NewServer(port string, db *gorm.DB) *Server {
 }
 
 func (s *Server) Run() {
-	routes.ConfigRoutes(s.server, s.db)
+	router.ConfigRoutes(s.server, s.db)
 	log.Fatal(s.server.Run(":" + s.port))
 }

@@ -1,23 +1,26 @@
-package controllers
+package handlers
 
 import (
+	"net/http"
+	"strconv"
+
 	"github.com/bmvinicius/go-rest-api/infra/repositories"
 	"github.com/bmvinicius/go-rest-api/models"
 	"github.com/gin-gonic/gin"
-	"net/http"
-	"strconv"
 )
 
-type BookController struct {
+const routerPath = "books"
+
+type BookHandler struct {
 	br *repositories.BookRepository
 	// TODO: add Service
 }
 
-func NewBookController(br *repositories.BookRepository) *BookController {
-	return &BookController{br}
+func NewBookHandler(br *repositories.BookRepository) *BookHandler {
+	return &BookHandler{br}
 }
 
-func (b *BookController) GetBook(c *gin.Context) {
+func (b *BookHandler) getBook(c *gin.Context) {
 	strId := c.Param("id")
 	id, err := strconv.Atoi(strId)
 	if err != nil {
@@ -42,7 +45,7 @@ func (b *BookController) GetBook(c *gin.Context) {
 	})
 }
 
-func (b *BookController) CreateBook(c *gin.Context) {
+func (b *BookHandler) createBook(c *gin.Context) {
 	var book models.Book
 	err := c.ShouldBindJSON(&book)
 	if err != nil {
@@ -65,7 +68,7 @@ func (b *BookController) CreateBook(c *gin.Context) {
 	})
 }
 
-func (b *BookController) GetBooks(c *gin.Context) {
+func (b *BookHandler) getBooks(c *gin.Context) {
 	books, err := b.br.GetAll()
 
 	if err != nil {
@@ -77,4 +80,11 @@ func (b *BookController) GetBooks(c *gin.Context) {
 	c.JSON(http.StatusCreated, gin.H{
 		"data": books,
 	})
+}
+
+func (b *BookHandler) ApplyRoutes(rg *gin.RouterGroup) {
+	booksRouterGroup := rg.Group(routerPath)
+	booksRouterGroup.GET("/", b.getBooks)
+	booksRouterGroup.GET("/:id", b.getBook)
+	booksRouterGroup.POST("/", b.createBook)
 }
