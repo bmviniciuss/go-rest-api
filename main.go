@@ -1,7 +1,7 @@
 package main
 
 import (
-	"github.com/bmvinicius/go-rest-api/infra/database"
+	database "github.com/bmvinicius/go-rest-api/database"
 	"github.com/bmvinicius/go-rest-api/main/server"
 )
 
